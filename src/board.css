@@ -1,0 +1,8 @@
+#myBoard{
+    border-collapse: collapse
+}
+#cell{
+    width: 70px;
+    height: 70px;
+    border: 2px solid black;
+}
