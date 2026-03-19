@@ -151,7 +151,7 @@ function Game() {
         }}>
             {
                 winner == null &&
-                <h1> player number {correctPlayer} click on columns</h1>
+                <h1> player number {correctPlayer} select a column and click on it</h1>
             }
             <Board theBoard={boardArr} whenClick={onColumnsClick} player1Color={player1Color}
                    player2Color={player2Color}/>

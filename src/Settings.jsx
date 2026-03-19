@@ -1,4 +1,3 @@
-import Game from "./Game";
 import './App.css';
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
@@ -6,8 +5,8 @@ import {useNavigate} from "react-router-dom";
 function Settings() {
     const navigate = useNavigate()
     const colors = ["red", "black", "yellow", "green", "orange", "blue"]
-    const [columnsNumber, setColumnsNumber] = useState(0)
-    const [rowsNumber, setRowsNumber] = useState(0)
+    const [columnsNumber, setColumnsNumber] = useState(null)
+    const [rowsNumber, setRowsNumber] = useState(null)
     const [player1Color, setPlayer1Color] = useState("")
     const [player2Color, setPlayer2Color] = useState("")
 
@@ -16,14 +15,16 @@ function Settings() {
     }
 
     return (
-        <div>
+        <div className="settings-page">
             <div>
-                enter number of rows <input value={rowsNumber} onChange={(event) => {
+                select rows number (at least 4)
+                <input value={rowsNumber} onChange={(event) => {
                 setRowsNumber(event.target.value)
             }}/>
             </div>
             <div>
-                enter number of columns <input value={columnsNumber} onChange={(event) => {
+                select columns number (at least 4)
+                <input value={columnsNumber} onChange={(event) => {
                 setColumnsNumber(event.target.value)
             }}/>
             </div>
@@ -35,7 +36,7 @@ function Settings() {
                 }}>
                     <option>select color</option>
                     {
-                        colors.map((color) => (
+                        colors.filter(color => color !== player2Color).map((color) => (
                             <option key={color}>{color}</option>
                         ))
                     }
@@ -55,7 +56,7 @@ function Settings() {
                 </select>
                 <div>
                     <button
-                        disabled={columnsNumber === 0 || rowsNumber === 0 || player1Color === "" || player2Color === ""}
+                        disabled={columnsNumber < 4 || rowsNumber < 4 || player1Color === "" || player2Color === ""}
                         onClick={navigateToGame}>
                         start game
                     </button>

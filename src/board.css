@@ -6,3 +6,17 @@
     height: 70px;
     border: 2px solid black;
 }
+.settings-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+    gap: 15px;
+    text-align: center;
+}
+
+.settings-page input, .settings-page select {
+    display: block;
+    width: 200px;
+    margin: 5px 0;
+}
