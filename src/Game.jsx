@@ -102,8 +102,10 @@ function Game() {
     function onColumnsClick(colIndex) {
         if (winner !== null)
             return
-        if ((boardArr[0][colIndex] !== 0))
+        if ((boardArr[0][colIndex] !== 0)){
             alert("this column is full, please click on other column")
+            return
+        }
         const newArr = boardArr.map(row => [...row])
         for (let i = numOfRows - 1; i >= 0; i--) {
             if (newArr[i][colIndex] === 0) {
@@ -113,27 +115,10 @@ function Game() {
                 if (didWin) {
                     setWinner(correctPlayer)
                 } else {
-                    setCorrectPlayer(updatePlayer)
+                    updatePlayer()
                 }
                 break
             }
-        }
-
-        if (boardArr[0][colIndex] === 0) {
-            const newArr = boardArr.map((row) => (
-                [...row]
-            ))
-            for (let i = numOfRows - 1; i >= 0; i--) {
-                if (newArr[i][colIndex] === 0) {
-                    newArr[i][colIndex] = correctPlayer
-                    setBoardArr(newArr)
-                    checkWin(i, colIndex)
-                    updatePlayer()
-                    break
-                }
-            }
-        } else {
-            alert("please click on other column")
         }
     }
 
@@ -146,7 +131,7 @@ function Game() {
 
     return (
         <div style={{
-            display: "gird",
+            display: "grid",
             placeItems: "center"
         }}>
             {
