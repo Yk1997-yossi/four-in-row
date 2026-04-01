@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import Board from "./Board";
 import {useLocation} from "react-router-dom";
 
@@ -8,10 +8,48 @@ function Game() {
     const numOfRows = location.state.rowsNumber
     const player1Color = location.state.player1Color
     const player2Color = location.state.player2Color
+    const isAgainstComputer = location.state.isAgainstComputer
 
     const [boardArr, setBoardArr] = useState(createBoardArr())
     const [correctPlayer, setCorrectPlayer] = useState(1)
     const [winner, setWinner] = useState(null)
+
+    const [timeLeft, setTimeLeft] = useState(0)
+    const [prevBoard, setPrevBoard] = useState(null)
+
+    useEffect(() => {
+        if (timeLeft > 0) {
+            const timer = setTimeout(() => {
+                setTimeLeft(timeLeft - 1);
+            }, 1000);
+            return () => clearTimeout(timer);
+        } else if (timeLeft === 0 && prevBoard !== null) {
+            setPrevBoard(null);
+            updatePlayer();
+        }
+    }, [timeLeft, prevBoard]);
+
+    useEffect(() => {
+        if (correctPlayer === 2 && isAgainstComputer && winner === null && timeLeft === 0 && prevBoard === null) {
+            const compTimer = setTimeout(() => {
+                let availableCols = [];
+                for (let i = 0; i < numOfCols; i++) {
+                    if (boardArr[0][i] === 0) availableCols.push(i);
+                }
+                if (availableCols.length > 0) {
+                    const randomCol = availableCols[Math.floor(Math.random() * availableCols.length)];
+                    onColumnsClick(randomCol, true);
+                }
+            }, 3000);
+            return () => clearTimeout(compTimer);
+        }
+    }, [correctPlayer, boardArr, winner, timeLeft, prevBoard, isAgainstComputer, numOfCols]);
+
+    function handleUndo() {
+        setBoardArr(prevBoard);
+        setPrevBoard(null);
+        setTimeLeft(0);
+    }
 
     function checkWin(rowIndex, collIndex) {
         const playerToCheckWin = correctPlayer
@@ -99,13 +137,19 @@ function Game() {
         return boardArr
     }
 
-    function onColumnsClick(colIndex) {
+    function onColumnsClick(colIndex, isComputerMove = false) {
         if (winner !== null)
             return
-        if ((boardArr[0][colIndex] !== 0)){
+        if (timeLeft > 0) return;
+        if (correctPlayer === 2 && isAgainstComputer && !isComputerMove) return;
+
+        if ((boardArr[0][colIndex] !== 0)) {
             alert("this column is full, please click on other column")
             return
         }
+
+        setPrevBoard(boardArr.map(row => [...row]));
+
         const newArr = boardArr.map(row => [...row])
         for (let i = numOfRows - 1; i >= 0; i--) {
             if (newArr[i][colIndex] === 0) {
@@ -114,8 +158,15 @@ function Game() {
                 const didWin = checkWin(i, colIndex, newArr)
                 if (didWin) {
                     setWinner(correctPlayer)
+                    setTimeLeft(0);
+                    setPrevBoard(null);
                 } else {
-                    updatePlayer()
+                    if (correctPlayer === 2 && isAgainstComputer) {
+                        setPrevBoard(null);
+                        updatePlayer();
+                    } else {
+                        setTimeLeft(5);
+                    }
                 }
                 break
             }
@@ -135,9 +186,25 @@ function Game() {
             placeItems: "center"
         }}>
             {
-                winner == null &&
+                winner == null && timeLeft === 0 && (!isAgainstComputer || correctPlayer === 1) &&
                 <h1> player number {correctPlayer} select a column and click on it</h1>
             }
+            {
+                winner == null && timeLeft === 0 && isAgainstComputer && correctPlayer === 2 &&
+                <h1> Computer is thinking...</h1>
+            }
+
+            {
+                timeLeft > 0 &&
+                <div style={{textAlign: "center", marginBottom: "15px"}}>
+                    <h2>You have {timeLeft} seconds to UNDO</h2>
+                    <button onClick={handleUndo}
+                            style={{padding: "10px", fontSize: "16px", cursor: "pointer", backgroundColor: "#ffcccc"}}>
+                        UNDO Move
+                    </button>
+                </div>
+            }
+
             <Board theBoard={boardArr} whenClick={onColumnsClick} player1Color={player1Color}
                    player2Color={player2Color}/>
             {
